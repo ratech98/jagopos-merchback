@@ -15,13 +15,13 @@ steps:
       - "build"
       - "--no-cache"
       - "-t"
-      - "gcr.io/${PROJECT_ID}/${_SERVICE}:latest"
+      - "gcr.io/${PROJECT_ID}/jagopos-merchbackend:latest"
       - "."
 
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "gcr.io/${PROJECT_ID}/${_SERVICE}:latest"  # Ensure correct tag format
+      - "gcr.io/${PROJECT_ID}/jagopos-merchbackend:latest"  # Ensure correct tag format
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     args:
