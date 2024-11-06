@@ -14,13 +14,13 @@ steps:
     args:
       - "build"
       - "-t"
-      - "gcr.io/$PROJECT_ID/${_SERVICE}"
+      - "gcr.io/${_PROJECT_ID}/${_SERVICE}"
       - "."
   
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "gcr.io/$PROJECT_ID/${_SERVICE}"
+      - "gcr.io/${_PROJECT_ID}/${_SERVICE}"
 
   - name: "gcr.io/cloud-builders/npm"
     args: ["run", "create-env"]
