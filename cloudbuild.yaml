@@ -21,7 +21,20 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
+      - "gcr.io/${PROJECT_ID}/${_SERVICE}:latest"  # Ensure correct tag format
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    args:
+      - "run"
+      - "deploy"
+      - "${_SERVICE}"
+      - "--image"
       - "gcr.io/$PROJECT_ID/${_SERVICE}:latest"
+      - "--region"
+      - "${_REGION}"  # Ensure _REGION is passed correctly
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated"
 
   - name: "gcr.io/cloud-builders/npm"
     args: ["run", "create-env"]
@@ -56,19 +69,6 @@ steps:
       - "_SERVICE=${_SERVICE}"
       - "_REGION=${_REGION}"
 
-  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
-    args:
-      - "run"
-      - "deploy"
-      - "${_SERVICE}"
-      - "--image"
-      - "gcr.io/$PROJECT_ID/${_SERVICE}"
-      - "--region"
-      - "${_REGION}" 
-      - "--platform"
-      - "managed"
-      - "--allow-unauthenticated"
-
   - name: "gcr.io/cloud-builders/gcloud"
     entrypoint: "bash"
     args:
@@ -86,4 +86,4 @@ steps:
         done
 
 options:
-  logging: CLOUD_LOGGING_ONLY
+  logging: CLOUD_LOGGING_ONLY  # Ensure this is the correct logging option
