@@ -1,33 +1,27 @@
-# Step 1: Define the base image to use (Node.js in this case)
-FROM node:16-alpine AS build
+# Step 1: Use a base image for Node.js
+FROM node:16-slim AS build-stage
 
-# Step 2: Set the working directory inside the container
+# Set working directory in the container
 WORKDIR /app
 
-# Step 3: Copy the package.json and package-lock.json (if present) to optimize caching
-COPY package*.json ./
-
-# Step 4: Install the dependencies for the Node.js app
+# Copy package.json and install dependencies
+COPY package.json ./
 RUN npm install
 
-# Step 5: Copy the entire application files into the working directory
+# Copy the rest of the source code
 COPY . .
 
-# Step 6: If you need to run any build command (for example, if it's a React app or has a build step)
-RUN npm run build
+# Step 2: Use a smaller base image for production
+FROM node:16-slim
 
-# Step 7: Define the runtime image (for example, Node.js in the final image)
-FROM node:16-alpine
-
-# Step 8: Set the working directory again for the runtime container
+# Set working directory in the container
 WORKDIR /app
 
-# Step 9: Copy the necessary files from the build stage to the runtime stage
-COPY --from=build /app /app
+# Copy built app from build stage
+COPY --from=build-stage /app ./
 
-# Step 10: Expose the port the app will run on
+# Expose necessary port (adjust according to your app)
 EXPOSE 8080
 
-# Step 11: Command to run the application
+# Command to start the app
 CMD ["npm", "start"]
-
