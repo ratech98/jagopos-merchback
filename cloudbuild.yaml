@@ -14,13 +14,13 @@ steps:
     args:
       - "build"
       - "-t"
-      - "gcr.io/jagopos/$jagopos-merchbackend"
+      - "gcr.io/$PROJECT_ID/${_SERVICE}"
       - "."
   
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "gcr.io/jagopos/jagopos-merchbackend"
+      - "gcr.io/$PROJECT_ID/${_SERVICE}"
 
   - name: "gcr.io/cloud-builders/npm"
     args: ["run", "create-env"]
@@ -52,18 +52,18 @@ steps:
       - "_AURORA_SCOPE=${_AURORA_SCOPE}"
       - "_COMMIT_SHA=${REVISION_ID}"
       - "_BRANCH_NAME=${BRANCH_NAME}"
-      - "_SERVICE=jagopos-merchbackend"
-      - "_REGION=us-central1"
+      - "_SERVICE=${_SERVICE}"
+      - "_REGION=${_REGION}"
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     args:
       - "run"
       - "deploy"
-      - "jagopos-merchbackend"
+      - "${_SERVICE}"
       - "--image"
-      - "gcr.io/jagopos/jagopos-merchbackend"
+      - "gcr.io/$PROJECT_ID/${_SERVICE}"
       - "--region"
-      - "us-central1" 
+      - "${_REGION}" 
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
@@ -75,12 +75,12 @@ steps:
       - |
         # List and delete old Cloud Run revisions, keeping the latest 5
         revisions=$(gcloud run revisions list \
-          --service jagopos-merchbackend \
+          --service ${_SERVICE} \
           --sort-by '~createTime' \
           --format 'value(metadata.name)' | sed 1,5d)
         for revision in $revisions; do
           gcloud run revisions delete "$revision" \
-            --region us-central1 \
+            --region ${_REGION} \
             --quiet
         done
 
