@@ -1,0 +1,88 @@
+steps:
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["install"]
+
+  - name: "gcr.io/cloud-builders/git"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        echo "Branch: ${BRANCH_NAME}" > git-info.txt
+        echo "Commit: ${REVISION_ID}" >> git-info.txt
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "build"
+      - "-t"
+      - "gcr.io/$PROJECT_ID/${_SERVICE}"
+      - "."
+  
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "push"
+      - "gcr.io/$PROJECT_ID/${_SERVICE}"
+
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["run", "create-env"]
+    env:
+      - "_DB_URL=${_DB_URL}"
+      - "_JWT_SECRET_KEY=${_JWT_SECRET_KEY}"
+      - "_BUCKET_NAME=${_BUCKET_NAME}"
+      - "_KEYFILENAME=${_KEYFILENAME}"
+      - "_BASE64STRING=${_BASE64STRING}"
+      - "_GOOGLE_MAP_KEY=${_GOOGLE_MAP_KEY}"
+      - "_TYPE=${_TYPE}"
+      - "_PROJECT_ID=${_PROJECT_ID}"
+      - "_PRIVATE_KEY_ID=${_PRIVATE_KEY_ID}"
+      - "_PRIVATE_KEY=${_PRIVATE_KEY}"
+      - "_CLIENT_EMAIL=${_CLIENT_EMAIL}"
+      - "_CLIENT_ID=${_CLIENT_ID}"
+      - "_AUTH_URI=${_AUTH_URI}"
+      - "_TOKEN_URI=${_TOKEN_URI}"
+      - "_AUTH_PROVIDER_X509_CERT_URL=${_AUTH_PROVIDER_X509_CERT_URL}"
+      - "_CLIENT_X509_CERT_URL=${_CLIENT_X509_CERT_URL}"
+      - "_UNIVERSE_DOMAIN=${_UNIVERSE_DOMAIN}"
+      - "_DB_USER_NAME=${_DB_USER_NAME}"
+      - "_DB_PASSWORD=${_DB_PASSWORD}"
+      - "_DB_CLUSTER=${_DB_CLUSTER}"
+      - "_DB_APP_NAME=${_DB_APP_NAME}"
+      - "_AURORA_GRANT_TYPE=${_AURORA_GRANT_TYPE}"
+      - "_AURORA_CLIENT_ID=${_AURORA_CLIENT_ID}"
+      - "_AURORA_CLIENT_SECRET=${_AURORA_CLIENT_SECRET}"
+      - "_AURORA_SCOPE=${_AURORA_SCOPE}"
+      - "_COMMIT_SHA=${REVISION_ID}"
+      - "_BRANCH_NAME=${BRANCH_NAME}"
+      - "_SERVICE=${_SERVICE}"
+      - "_REGION=${_REGION}"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    args:
+      - "run"
+      - "deploy"
+      - "${_SERVICE}"
+      - "--image"
+      - "gcr.io/$PROJECT_ID/${_SERVICE}"
+      - "--region"
+      - "${_REGION}" 
+      - "--platform"
+      - "managed"
+      - "--allow-unauthenticated"
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        # List and delete old Cloud Run revisions, keeping the latest 5
+        revisions=$(gcloud run revisions list \
+          --service ${_SERVICE} \
+          --sort-by '~createTime' \
+          --format 'value(metadata.name)' | sed 1,5d)
+        for revision in $revisions; do
+          gcloud run revisions delete "$revision" \
+            --region ${_REGION} \
+            --quiet
+        done
+
+options:
+  logging: CLOUD_LOGGING_ONLY

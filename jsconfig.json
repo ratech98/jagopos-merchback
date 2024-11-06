@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "commonjs",
+    "target": "es6",
+    "paths": {
+      "@src": ["./src"],
+      "@db": ["./src/config"],
+      "@schema": ["./src/models"],
+      "@routes": ["src/routes"],
+      "@config": ["./src/config"],
+      "@middleware": ["./src/middleware"],
+      "@utils": ["./src/utils"],
+      //  "@email": ["./src/email"],
+      "@handler": ["./src/handler"],
+      "@controller": ["./src/controller"],
+      "@translate": ["src/utils/translate/merchant.js"],
+
+    }
+  }
+}
