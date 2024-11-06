@@ -21,7 +21,7 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "gcr.io/${PROJECT_ID}/jagopos-merchbackend:latest"  # Ensure correct tag format
+      - "gcr.io/${PROJECT_ID}/jagopos-merchbackend:latest"
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     args:
