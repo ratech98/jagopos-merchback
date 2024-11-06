@@ -15,23 +15,24 @@ steps:
       - "build"
       - "--no-cache"
       - "-t"
-      - "gcr.io/${PROJECT_ID}/jagopos-merchbackend:latest"
+      - "gcr.io/${PROJECT_ID}/jagopos-merchback/development:latest"
       - "."
+
 
   - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
-      - "gcr.io/${PROJECT_ID}/jagopos-merchbackend:latest"
+      - "gcr.io/${PROJECT_ID}/jagopos-merchback/development:latest"
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     args:
       - "run"
       - "deploy"
-      - "${_SERVICE}"
+      - "jagopos-merchback"
       - "--image"
-      - "gcr.io/$PROJECT_ID/${_SERVICE}:latest"
+      - "gcr.io/${PROJECT_ID}/jagopos-merchback/development:latest"
       - "--region"
-      - "${_REGION}"  # Ensure _REGION is passed correctly
+      - "us-central1" 
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
@@ -76,12 +77,12 @@ steps:
       - |
         # List and delete old Cloud Run revisions, keeping the latest 5
         revisions=$(gcloud run revisions list \
-          --service ${_SERVICE} \
+          --service jagopos-merchback\
           --sort-by '~createTime' \
           --format 'value(metadata.name)' | sed 1,5d)
         for revision in $revisions; do
           gcloud run revisions delete "$revision" \
-            --region ${_REGION} \
+            --region us-central1 \
             --quiet
         done
 
