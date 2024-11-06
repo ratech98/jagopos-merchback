@@ -26,6 +26,7 @@ steps:
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     args:
+      - "gcloud"
       - "run"
       - "deploy"
       - "jagopos-merchback"
@@ -36,6 +37,7 @@ steps:
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
+
 
   - name: "gcr.io/cloud-builders/npm"
     args: ["run", "create-env"]
